@@ -277,6 +277,7 @@ void Lddc::FillPointsToPclMsg(PointCloud::Ptr& pcl_msg, \
 }
 
 /* for pcl::pxyzi */
+// only called if type == kPclPxyziMsg
 uint32_t Lddc::PublishPointcloudData(LidarDataQueue *queue, uint32_t packet_num,
                                      uint8_t handle) {
   uint64_t timestamp = 0;
@@ -318,7 +319,9 @@ uint32_t Lddc::PublishPointcloudData(LidarDataQueue *queue, uint32_t packet_num,
     if (!published_packet) {
       // FIX-TS: use rostime instead of livox time
       // cloud->header.stamp = timestamp / 1000.0;  // to pcl ros time stamp
-      cloud->header.stamp = ros::Time::now();
+
+      // https://answers.ros.org/question/172241/pcl-and-rostime/
+      cloud->header.stamp = ros::Time::now().toNSec()/1e3;
     }
     uint32_t single_point_num = storage_packet.point_num * echo_num;
 
